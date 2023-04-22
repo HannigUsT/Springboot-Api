@@ -1,7 +1,5 @@
 package com.unieuro.aula.model;
 
-import org.springframework.http.HttpStatus;
-
 import jakarta.persistence.*;
 
 @Entity
