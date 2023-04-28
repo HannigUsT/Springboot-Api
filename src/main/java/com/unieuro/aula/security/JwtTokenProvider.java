@@ -10,6 +10,7 @@ import org.springframework.util.StringUtils;
 
 import com.unieuro.aula.model.UserEntity;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
@@ -43,22 +44,30 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public boolean validateToken(String token) {
+    public String validateToken(String token) {
         try {
             Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token);
-            return true;
+            return "valid";
         } catch (SignatureException ex) {
-            System.out.println("Invalid JWT signature");
+            return "Invalid Token";
         } catch (MalformedJwtException ex) {
-            System.out.println("Invalid JWT token");
+            return "Invalid Token";
         } catch (ExpiredJwtException ex) {
-            System.out.println("Expired JWT token");
+            return "Expired Token";
         } catch (UnsupportedJwtException ex) {
-            System.out.println("Unsupported JWT token");
+            return "Unsupported Token";
         } catch (IllegalArgumentException ex) {
-            System.out.println("JWT claims string is empty.");
+            return "Token is Empty";
         }
-        return false;
+    }
+
+    public Long getUserIdFromToken(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(SECRET_KEY)
+                .parseClaimsJws(token)
+                .getBody();
+
+        return Long.parseLong(claims.get("id").toString());
     }
 
     public String getTokenFromRequest(HttpServletRequest request) {

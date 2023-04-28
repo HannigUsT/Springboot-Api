@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.unieuro.aula.model.CalculatorEntity;
 import com.unieuro.aula.model.UserEntity;
+import com.unieuro.aula.repository.CalculatorRepository;
 import com.unieuro.aula.repository.UserRepository;
 import com.unieuro.aula.response.ApiResponse;
 
@@ -21,7 +23,10 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
-    @PostMapping("/usuarios")
+    @Autowired
+    private CalculatorRepository somaRepository;
+
+    @PostMapping("/users")
     public ResponseEntity<?> createUser(@RequestBody UserEntity user) {
 
         if (user.getName() == null || user.getName().isEmpty()) {
@@ -77,6 +82,8 @@ public class UserController {
 
         user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
         userRepository.save(user);
+        CalculatorEntity somaEntity = new CalculatorEntity(user.getId());
+        somaRepository.save(somaEntity);
         return ResponseEntity.ok(Collections.singletonMap("message", "Usuário criado com sucesso"));
     }
 }
