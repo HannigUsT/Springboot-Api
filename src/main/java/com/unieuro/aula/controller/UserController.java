@@ -24,7 +24,7 @@ public class UserController {
     private UserRepository userRepository;
 
     @Autowired
-    private CalculatorRepository somaRepository;
+    private CalculatorRepository calculatorRepository;
 
     @PostMapping("/users")
     public ResponseEntity<?> createUser(@RequestBody UserEntity user) {
@@ -82,8 +82,8 @@ public class UserController {
 
         user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
         userRepository.save(user);
-        CalculatorEntity somaEntity = new CalculatorEntity(user.getId());
-        somaRepository.save(somaEntity);
+        CalculatorEntity calculatorEntity = new CalculatorEntity(user.getId());
+        calculatorRepository.save(calculatorEntity);
         return ResponseEntity.ok(Collections.singletonMap("message", "Usuário criado com sucesso"));
     }
 }
