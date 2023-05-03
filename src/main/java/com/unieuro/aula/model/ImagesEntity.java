@@ -25,9 +25,10 @@ public class ImagesEntity {
     public ImagesEntity() {
     }
 
-    public ImagesEntity(Long user_id) {
+    public ImagesEntity(Long user_id, String image_path) {
         this.user_id = user_id;
         this.date = Timestamp.from(Instant.now());
+        this.image_path = image_path;
     }
 
 }
