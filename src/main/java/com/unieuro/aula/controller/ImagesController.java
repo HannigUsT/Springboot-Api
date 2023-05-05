@@ -40,6 +40,13 @@ public class ImagesController {
         String validated = jwtTokenProvider.validateToken(token);
         if ("valid".equals(validated)) {
             Long id = jwtTokenProvider.getUserIdFromToken(token);
+            String contentType = image.getContentType();
+            if (!contentType.equals("image/jpeg") && !contentType.equals("image/png")
+                    && !contentType.equals("image/gif")) {
+                Map<String, String> errorMap = new HashMap<>();
+                errorMap.put("error", "Tipo de arquivo inválido. Somente imagens JPEG, PNG e GIF são permitidas.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMap);
+            }
             try {
                 String fileName = image.getOriginalFilename();
                 Path imagePath = Paths.get("src/data/images", fileName);
@@ -50,7 +57,7 @@ public class ImagesController {
                 return ResponseEntity.status(HttpStatus.OK).body(successMap);
             } catch (IOException e) {
                 Map<String, String> errorMap = new HashMap<>();
-                errorMap.put("error", "Error writing image file");
+                errorMap.put("error", "Erro ao escrever arquivo de imagem");
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorMap);
             }
         } else {
