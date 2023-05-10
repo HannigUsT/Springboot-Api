@@ -6,7 +6,6 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,7 +30,7 @@ public class UserController {
 
     @Autowired
     private CalculatorRepository calculatorRepository;
-    
+
     @GetMapping("/users")
     public List<UserEntity> getAllUsers() {
         return userRepository.findAll();
@@ -39,32 +38,34 @@ public class UserController {
 
     @DeleteMapping("users/{email}")
     public ResponseEntity<?> deleteUser(@PathVariable String email) {
-        try{
-            UserEntity existingUser = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Valor não presente"));
+        try {
+            UserEntity existingUser = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("Valor não presente"));
             userRepository.delete(existingUser);
-            //ResponseEntity.noContent().build();
+            // ResponseEntity.noContent().build();
             return ResponseEntity.ok(Collections.singletonMap("message", "Usuário deletado com sucesso!"));
-        }catch(Exception e) {
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body(new ApiResponse("error", "Usuário não encontrado no nosso sistema"));
+                    .body(new ApiResponse("error", "Usuário não encontrado no nosso sistema"));
         }
 
     }
 
     @PutMapping("/users/{email}")
     public ResponseEntity<?> updateUser(@PathVariable String email, @RequestBody UserEntity user) {
-        try{
-            UserEntity existingUser = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Valor não presente"));
+        try {
+            UserEntity existingUser = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("Valor não presente"));
             if (user.getName() == null || user.getName().isEmpty()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(new ApiResponse("error", "Nome não pode ser vazio."));
             }
-    
+
             if (user.getPassword() == null || user.getPassword().isEmpty()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(new ApiResponse("error", "Senha não pode ser vazia."));
             }
-    
+
             if (user.getEmail() == null || user.getEmail().isEmpty()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(new ApiResponse("error", "Email não pode ser vazio."));
@@ -93,15 +94,16 @@ public class UserController {
                             "Erro ao criar o usuário, senha deve conter ao menos um caractere especial."));
                 }
             }
-    
+
             existingUser.setName(user.getName());
             existingUser.setEmail(user.getEmail());
             existingUser.setPassword(user.getPassword());
             userRepository.save(existingUser);
             return ResponseEntity.ok(Collections.singletonMap("message", "Usuário atualizado com sucesso!"));
 
-        }catch(Exception e){
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse("error", "Usuário não encontrado no nosso sistema"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse("error", "Usuário não encontrado no nosso sistema"));
         }
     }
 
@@ -165,7 +167,5 @@ public class UserController {
         calculatorRepository.save(calculatorEntity);
         return ResponseEntity.ok(Collections.singletonMap("message", "Usuário criado com sucesso"));
     }
-
-   
 
 }
