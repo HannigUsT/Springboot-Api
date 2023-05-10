@@ -133,71 +133,61 @@ public class UserController {
     @PostMapping("/users")
     public ResponseEntity<?> createUser(@RequestBody UserEntity user, HttpServletRequest request) {
 
-        String token = jwtTokenProvider.getTokenFromRequest(request);
-        String validated = jwtTokenProvider.validateToken(token);
-        if ("valid".equals(validated)) {
-
-            if (user.getName() == null || user.getName().isEmpty()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(new ApiResponse("error", "Nome não pode ser vazio."));
-            }
-
-            if (user.getPassword() == null || user.getPassword().isEmpty()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(new ApiResponse("error", "Senha não pode ser vazia."));
-            }
-
-            if (user.getEmail() == null || user.getEmail().isEmpty()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(new ApiResponse("error", "Email não pode ser vazio."));
-            }
-
-            Optional<UserEntity> existingUser = userRepository.findByEmail(user.getEmail());
-            if (existingUser.isPresent()) {
-                return ResponseEntity.status(HttpStatus.CONFLICT)
-                        .body(new ApiResponse("error", "Usuário já está registrado"));
-            }
-
-            String emailPattern = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}$";
-            if (user.getEmail() == null || !user.getEmail().matches(emailPattern)) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(new ApiResponse("error", "Erro ao criar o usuário, e-mail inválido."));
-            }
-
-            String passwordPattern = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$";
-            if (user.getPassword() == null || !user.getPassword().matches(passwordPattern)) {
-                if (user.getPassword() == null || user.getPassword().length() < 8) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse("error",
-                            "Erro ao criar o usuário, senha deve conter no mínimo 8 caracteres."));
-                }
-                if (!user.getPassword().matches(".*[A-Z].*")) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse("error",
-                            "Erro ao criar o usuário, senha deve conter ao menos uma letra maiúscula."));
-                }
-                if (!user.getPassword().matches(".*[a-z].*")) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse("error",
-                            "Erro ao criar o usuário, senha deve conter ao menos uma letra minúscula."));
-                }
-                if (!user.getPassword().matches(".*[0-9].*")) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse("error",
-                            "Erro ao criar o usuário, senha deve conter ao menos um número."));
-                }
-                if (!user.getPassword().matches(".*[@#$%^&+=].*")) {
-                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse("error",
-                            "Erro ao criar o usuário, senha deve conter ao menos um caractere especial."));
-                }
-            }
-
-            user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
-            userRepository.save(user);
-            CalculatorEntity calculatorEntity = new CalculatorEntity(user.getId());
-            calculatorRepository.save(calculatorEntity);
-            return ResponseEntity.ok(Collections.singletonMap("message", "Usuário criado com sucesso"));
-        } else {
-            Map<String, String> errorMap = new HashMap<>();
-            errorMap.put("error", validated);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorMap);
+        if (user.getName() == null || user.getName().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse("error", "Nome não pode ser vazio."));
         }
-    }
 
+        if (user.getPassword() == null || user.getPassword().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse("error", "Senha não pode ser vazia."));
+        }
+
+        if (user.getEmail() == null || user.getEmail().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse("error", "Email não pode ser vazio."));
+        }
+
+        Optional<UserEntity> existingUser = userRepository.findByEmail(user.getEmail());
+        if (existingUser.isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new ApiResponse("error", "Usuário já está registrado"));
+        }
+
+        String emailPattern = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}$";
+        if (user.getEmail() == null || !user.getEmail().matches(emailPattern)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse("error", "Erro ao criar o usuário, e-mail inválido."));
+        }
+
+        String passwordPattern = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$";
+        if (user.getPassword() == null || !user.getPassword().matches(passwordPattern)) {
+            if (user.getPassword() == null || user.getPassword().length() < 8) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse("error",
+                        "Erro ao criar o usuário, senha deve conter no mínimo 8 caracteres."));
+            }
+            if (!user.getPassword().matches(".*[A-Z].*")) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse("error",
+                        "Erro ao criar o usuário, senha deve conter ao menos uma letra maiúscula."));
+            }
+            if (!user.getPassword().matches(".*[a-z].*")) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse("error",
+                        "Erro ao criar o usuário, senha deve conter ao menos uma letra minúscula."));
+            }
+            if (!user.getPassword().matches(".*[0-9].*")) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse("error",
+                        "Erro ao criar o usuário, senha deve conter ao menos um número."));
+            }
+            if (!user.getPassword().matches(".*[@#$%^&+=].*")) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse("error",
+                        "Erro ao criar o usuário, senha deve conter ao menos um caractere especial."));
+            }
+        }
+
+        user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
+        userRepository.save(user);
+        CalculatorEntity calculatorEntity = new CalculatorEntity(user.getId());
+        calculatorRepository.save(calculatorEntity);
+        return ResponseEntity.ok(Collections.singletonMap("message", "Usuário criado com sucesso"));
+    }
 }
