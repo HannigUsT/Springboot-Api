@@ -45,6 +45,10 @@ public class EnderecoController {
         }
     }
 
+    @GetMapping("/endereco")
+    public List<EnderecoEntity> getAllUsers() {
+        return enderecoRepository.findAll();
+    }
 
     @GetMapping("/endereco/{cep}/{tipo}")
     public String consultarTipo(@PathVariable String cep, @PathVariable Integer tipo){
