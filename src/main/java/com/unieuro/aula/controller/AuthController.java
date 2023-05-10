@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,7 +27,7 @@ public class AuthController {
     @Autowired
     private JwtAuthenticationManager jwtAuthenticationManager;
 
-    @GetMapping("/auth")
+    @PostMapping("/auth")
     public ResponseEntity<?> authenticateUser(@RequestBody UserEntity user) {
         Optional<UserEntity> userExists = userRepository.findByEmail(user.getEmail());
         if (user.getEmail() == null || user.getEmail().isEmpty() || user.getPassword() == null
